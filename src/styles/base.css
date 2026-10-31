@@ -1,0 +1,96 @@
+/*
+ * Element defaults. Keep these quiet: components opt into emphasis
+ * through the type utilities below, not through bare tags.
+ */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: var(--header-height);
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-weight: var(--font-weight-normal);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: var(--font-weight-normal);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  hr {
+    border-color: var(--color-line);
+  }
+
+  /* Tailwind preflight resets borders to currentColor; default to the hairline */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line);
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em); /* prevents iOS zoom on focus */
+  }
+
+  img,
+  video {
+    background-color: var(--color-surface);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/*
+ * Inverse scope: put on any block that sits on dark imagery or an ink
+ * band. Tokens flip, so buttons/links/borders inside need no variants.
+ */
+@layer base {
+  .theme-inverse {
+    --color-ink: #ffffff;
+    --color-ink-soft: #e6e6e6;
+    --color-paper: #000000;
+    --color-muted: #b3b3b3;
+    --color-subtle: #7a7a7a;
+    --color-line: rgb(255 255 255 / 0.2);
+    --color-line-strong: rgb(255 255 255 / 0.5);
+    --color-surface: #111111;
+    --color-surface-strong: #1c1c1c;
+    color: var(--color-ink);
+  }
+}
