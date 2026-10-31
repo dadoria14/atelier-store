@@ -3,7 +3,7 @@ import { services } from "@/lib/sample-data";
 export function ServiceStrip() {
   return (
     <section className="container-page section-sm">
-      <ul className="grid border-t sm:grid-cols-2 lg:grid-cols-4">
+      <ul role="list" className="grid border-t sm:grid-cols-2 lg:grid-cols-4">
         {services.map((service) => (
           <li
             key={service.title}

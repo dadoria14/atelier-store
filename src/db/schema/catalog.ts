@@ -35,7 +35,13 @@ export const categories = pgTable(
     position: integer("position").notNull().default(0),
     ...timestamps,
   },
-  (t) => [index("categories_parent_id_idx").on(t.parentId)],
+  (t) => [
+    index("categories_parent_id_idx").on(t.parentId),
+    check(
+      "categories_parent_id_not_self",
+      sql`${t.parentId} IS NULL OR ${t.parentId} <> ${t.id}`,
+    ),
+  ],
 );
 
 export const products = pgTable(

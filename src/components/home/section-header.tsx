@@ -20,7 +20,11 @@ export function SectionHeader({
         <h2 className="text-heading">{title}</h2>
       </div>
       {href && (
-        <Link href={href} className="text-label link shrink-0">
+        <Link
+          href={href}
+          aria-label={`${linkLabel} ${title}`}
+          className="text-label link shrink-0"
+        >
           {linkLabel}
         </Link>
       )}

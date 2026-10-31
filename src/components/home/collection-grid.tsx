@@ -10,7 +10,7 @@ export async function CollectionGrid() {
   return (
     <section className="container-page section">
       <SectionHeader eyebrow="Explore" title="Shop by Category" />
-      <ul className="grid grid-cols-2 gap-1 lg:grid-cols-4 lg:gap-2">
+      <ul role="list" className="grid grid-cols-2 gap-1 lg:grid-cols-4 lg:gap-2">
         {departments.map((department) => (
           <li key={department.slug}>
             <Link href={`/${department.slug}`} className="group block">

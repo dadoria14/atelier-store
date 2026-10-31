@@ -21,7 +21,7 @@ export function ProductShowcase({
     <section className="container-page section">
       <SectionHeader eyebrow={eyebrow} title={title} href={href} />
       {layout === "grid" ? (
-        <ul className="grid-products">
+        <ul role="list" className="grid-products">
           {products.map((product) => (
             <li key={product.slug}>
               <ProductCard product={product} />
@@ -29,7 +29,10 @@ export function ProductShowcase({
           ))}
         </ul>
       ) : (
-        <ul className="rail -mx-gutter scroll-px-gutter px-gutter md:mx-0 md:px-0">
+        <ul
+          role="list"
+          className="rail -mx-gutter scroll-px-gutter px-gutter md:mx-0 md:px-0"
+        >
           {products.map((product) => (
             <li key={product.slug}>
               <ProductCard

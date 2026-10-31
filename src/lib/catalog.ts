@@ -1,5 +1,14 @@
 // Read-only catalog queries for the storefront.
-import { and, asc, desc, eq, isNotNull, isNull, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+} from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { db } from "@/db";
@@ -20,6 +29,15 @@ export type Department = {
   name: string;
   imageUrl: string;
 };
+
+const DEFAULT_PRODUCT_LIMIT = 50;
+const MAX_PRODUCT_LIMIT = 100;
+
+// Coerce a caller-supplied limit into 1..MAX_PRODUCT_LIMIT.
+function clampLimit(limit: number | undefined, fallback = DEFAULT_PRODUCT_LIMIT) {
+  if (limit === undefined || !Number.isFinite(limit)) return fallback;
+  return Math.min(Math.max(1, Math.trunc(limit)), MAX_PRODUCT_LIMIT);
+}
 
 const summaryColumns = {
   slug: products.slug,
@@ -51,7 +69,7 @@ export async function getNewArrivals(limit = 8): Promise<ProductSummary[]> {
     .innerJoin(categories, eq(products.categoryId, categories.id))
     .where(eq(products.isActive, true))
     .orderBy(desc(products.createdAt), asc(products.id))
-    .limit(limit);
+    .limit(clampLimit(limit, 8));
 
   return rows.map(toSummary);
 }
@@ -65,13 +83,13 @@ export async function getProductsInCategory(
   cacheLife("hours");
   cacheTag("catalog");
 
-  const category = await db.query.categories.findFirst({
-    columns: { id: true },
-    where: eq(categories.slug, slug),
-  });
-  if (!category) return [];
+  // Subquery keeps this to one round-trip to Neon.
+  const target = db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.slug, slug));
 
-  const query = db
+  const rows = await db
     .select(summaryColumns)
     .from(products)
     .innerJoin(categories, eq(products.categoryId, categories.id))
@@ -79,14 +97,14 @@ export async function getProductsInCategory(
       and(
         eq(products.isActive, true),
         or(
-          eq(categories.id, category.id),
-          eq(categories.parentId, category.id),
+          inArray(categories.id, target),
+          inArray(categories.parentId, target),
         ),
       ),
     )
-    .orderBy(desc(products.createdAt), asc(products.id));
+    .orderBy(desc(products.createdAt), asc(products.id))
+    .limit(clampLimit(limit));
 
-  const rows = limit === undefined ? await query : await query.limit(limit);
   return rows.map(toSummary);
 }
 

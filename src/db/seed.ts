@@ -176,11 +176,13 @@ const accessories: SeedProduct[] = [
   },
 ];
 
-const excluded = (column: string) => sql.raw(`excluded.${column}`);
+const excluded = (column: string) => sql`excluded.${sql.identifier(column)}`;
 
 async function upsertCategories(
   rows: (typeof categories.$inferInsert)[],
 ): Promise<Map<string, number>> {
+  if (rows.length === 0) return new Map();
+
   const saved = await db
     .insert(categories)
     .values(rows)

@@ -5,20 +5,17 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
+
+This repo uses pnpm (`pnpm-lock.yaml`); don't commit an npm or yarn lockfile.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to load [Jost](https://fonts.google.com/specimen/Jost) (sans) and [EB Garamond](https://fonts.google.com/specimen/EB+Garamond) (display) from Google Fonts.
 
 ## Learn More
 
@@ -39,14 +36,16 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - **Next.js** (App Router, TypeScript, Tailwind CSS v4)
 - **Better Auth**: server config in `src/lib/auth.ts`, client in `src/lib/auth-client.ts`, handler at `src/app/api/auth/[...all]/route.ts`
-- **Drizzle ORM + Neon Postgres**: client in `src/db/index.ts`, schema in `src/db/schema.ts`, config in `drizzle.config.ts`
+- **Drizzle ORM + Neon Postgres**: client in `src/db/index.ts`, schema in `src/db/schema/` (re-exported from `index.ts`), config in `drizzle.config.ts`
 
 ### First run
 
 ```bash
 cp .env.example .env    # fill in DATABASE_URL and BETTER_AUTH_SECRET
-npm run auth:generate   # write Better Auth tables to src/db/schema.ts
-npm run db:generate     # create SQL migrations in ./drizzle
-npm run db:migrate      # apply them to Neon
-npm run dev
+pnpm install
+pnpm db:migrate         # apply the migrations in ./drizzle to Neon
+pnpm db:seed            # load the sample catalog (safe to re-run)
+pnpm dev
 ```
+
+When you add auth, run `pnpm auth:generate` (writes `src/db/schema/auth.ts`), export it from `src/db/schema/index.ts`, then `pnpm db:generate` and `pnpm db:migrate`.

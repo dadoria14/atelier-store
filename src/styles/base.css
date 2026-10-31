@@ -17,6 +17,9 @@
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
     font-weight: var(--font-weight-normal);
+    /* .full-bleed is 100vw, which includes the scrollbar; clip (not hidden)
+       so the sticky header keeps working. */
+    overflow-x: clip;
   }
 
   h1,

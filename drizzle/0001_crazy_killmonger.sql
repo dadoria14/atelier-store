@@ -1,0 +1,1 @@
+ALTER TABLE "categories" ADD CONSTRAINT "categories_parent_id_not_self" CHECK ("categories"."parent_id" IS NULL OR "categories"."parent_id" <> "categories"."id");

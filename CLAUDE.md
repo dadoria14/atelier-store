@@ -11,22 +11,22 @@ Atelier Store is an eCommerce app at the scaffold stage. The stack is wired toge
 ## Commands
 
 ```bash
-npm run dev            # dev server (Turbopack)
-npm run build          # production build
-npm run lint           # ESLint (flat config, eslint.config.mjs)
-npm run typecheck      # tsc --noEmit
+pnpm dev               # dev server (Turbopack)
+pnpm build             # production build
+pnpm lint              # ESLint (flat config, eslint.config.mjs)
+pnpm typecheck         # tsc --noEmit
 
-npm run auth:generate  # Better Auth CLI writes its tables into src/db/schema/auth.ts
-npm run db:generate    # drizzle-kit: SQL migrations from schema into ./drizzle
-npm run db:migrate     # apply migrations to DATABASE_URL
-npm run db:push        # push schema directly (no migration files)
-npm run db:studio      # Drizzle Studio
-npm run db:seed        # idempotent catalog seed (src/db/seed.ts, run with tsx)
+pnpm auth:generate     # Better Auth CLI writes its tables into src/db/schema/auth.ts
+pnpm db:generate       # drizzle-kit: SQL migrations from schema into ./drizzle
+pnpm db:migrate        # apply migrations to DATABASE_URL
+pnpm db:push           # push schema directly (no migration files)
+pnpm db:studio         # Drizzle Studio
+pnpm db:seed           # idempotent catalog seed (src/db/seed.ts, run with tsx)
 ```
 
 No test runner is configured.
 
-Env: copy `.env.example` to `.env`. `drizzle.config.ts` loads it with `dotenv`. Next.js loads it on its own. Without `BETTER_AUTH_SECRET`, `npm run build` still succeeds but logs a Better Auth error.
+Env: copy `.env.example` to `.env`. `drizzle.config.ts` loads it with `dotenv`. Next.js loads it on its own. Without `BETTER_AUTH_SECRET`, `pnpm build` still succeeds but logs a Better Auth error.
 ## Architecture
 
 - **DB client** (`src/db/index.ts`): Drizzle over the Neon HTTP driver (`drizzle-orm/neon-http`), not a pooled WebSocket connection. Interactive transactions are not supported on this driver. The client is created with `import * as schema from "./schema"`, so new tables must be re-exported from the barrel `src/db/schema/index.ts` to work with `db.query.*` and with drizzle-kit.
@@ -43,7 +43,7 @@ Env: copy `.env.example` to `.env`. `drizzle.config.ts` loads it with `dotenv`. 
 - **Money**: integer cents (`price_cents`), never floats or `numeric`. Display with `formatPrice(cents)` from `src/lib/format.ts`.
 - **Stock**: a `stock_quantity` column on `products` (check `>= 0`) until variants exist; then it moves to the variant table. The neon-http driver has no interactive transactions, so decrement in a single conditional `UPDATE … WHERE stock_quantity >= n`, not read-then-write.
 - **Categories**: two levels through `parent_id` (departments → product types). Each product has exactly one `category_id`, usually a leaf; department queries include direct children. No many-to-many product/category table.
-- **Reads**: the storefront reads catalog data only through `src/lib/catalog.ts`. Functions use `'use cache'` + `cacheLife('hours')` + `cacheTag('catalog')` and return plain serializable objects, not Drizzle rows. Any catalog mutation must call `revalidateTag('catalog')`.
+- **Reads**: the storefront reads catalog data only through `src/lib/catalog.ts`. Functions use `'use cache'` + `cacheLife('hours')` + `cacheTag('catalog')` and return plain serializable objects, not Drizzle rows. Any catalog mutation must call `updateTag('catalog')` inside a Server Action, or `revalidateTag('catalog', 'max')` elsewhere (the one-argument form is deprecated).
 - **Build needs the DB**: cached queries run at prerender, so `next build` requires `DATABASE_URL` pointing at a migrated, seeded database.
 - **Seed**: `src/db/seed.ts` must stay idempotent (upsert by `slug`).
 - **Scope**: v1 is products, categories and stock only. Don't add carts, orders, payments, reviews, wishlists or variants unless asked.
